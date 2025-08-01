@@ -31,14 +31,35 @@ A simple Flutter chat app with authentication and sidebar navigation.
 4. **Screenshots**:
 
    <p align="center">
-     <img src="screens/login1.png" alt="Login" width="45%"/>
-     <img src="screens/login2.png" alt="Login Screen" width="45%"/>
+     <b>Login</b><br>
+     <img src="screens/login1.png" alt="Login" width="28%"/>
+     <img src="screens/login2.png" alt="Login Screen" width="28%"/>
    </p>
-   ![Sidebar](<screens/sidebar.png>)  
-   ![Home](<screens/home.png>)  
-   ![Chat Screen](<screens/chat.png>)  
-   ![AI Thinking](<screens/loading.png>)  
-   ![Chat Response](<screens/chat1.png>)
+
+   <p align="center">
+     <b>Sidebar</b><br>
+     <img src="screens/sidebar.png" alt="Sidebar" width="38%"/>
+   </p>
+
+   <p align="center">
+     <b>Home</b><br>
+     <img src="screens/home.png" alt="Home" width="38%"/>
+   </p>
+
+   <p align="center">
+     <b>Chat Screen</b><br>
+     <img src="screens/chat.png" alt="Chat Screen" width="38%"/>
+   </p>
+
+   <p align="center">
+     <b>AI Thinking</b><br>
+     <img src="screens/loading.png" alt="AI Thinking" width="38%"/>
+   </p>
+
+   <p align="center">
+     <b>Chat Response</b><br>
+     <img src="screens/chat1.png" alt="Chat Response" width="38%"/>
+   </p>
 
 ## Getting Started
 
