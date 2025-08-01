@@ -41,11 +41,12 @@ class _ChatPageState extends State<ChatPage> {
     );
 
     try {
+      const apiKey = 'key-api';
       // OpenAI endpoint (replace with your actual API key)
       final openAiUrl = Uri.https("api.openai.com", "/v1/chat/completions");
       final headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer key-api-openai"
+        "Authorization": "Bearer $apiKey"
       };
       final prompt = {
         "model": "gpt-4.1",
