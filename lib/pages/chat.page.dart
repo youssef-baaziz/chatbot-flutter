@@ -41,15 +41,26 @@ class _ChatPageState extends State<ChatPage> {
     );
 
     try {
-      const apiKey = 'key-api';
-      // OpenAI endpoint (replace with your actual API key)
+      // The API key has been removed for security reasons.
+      // Please provide your OpenAI API key securely, e.g., via environment variables or secure storage.
+      const apiKey = String.fromEnvironment('OPENAI_API_KEY', defaultValue: '');
+      if (apiKey.isEmpty) {
+        setState(() {
+          messages.add({
+            "message":
+                "⚠️ OpenAI API key is missing. Please configure your API key securely.",
+            "type": "assistant"
+          });
+        });
+        return;
+      }
       final openAiUrl = Uri.https("api.openai.com", "/v1/chat/completions");
       final headers = {
         "Content-Type": "application/json",
         "Authorization": "Bearer $apiKey"
       };
       final prompt = {
-        "model": "gpt-4.1",
+        "model": "gpt-4.0-turbo",
         "messages": [
           {"role": "user", "content": query}
         ],
