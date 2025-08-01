@@ -43,17 +43,10 @@ class LoginPage extends StatelessWidget {
                 ),
                 SizedBox(height: 32),
                 Text(
-                  "Welcome Back",
+                  "Sign In",
                   style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w900, // Make it extra bold
                     color: theme.colorScheme.primary,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  "Sign in to continue",
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
                   ),
                 ),
                 SizedBox(height: 32),
@@ -64,7 +57,8 @@ class LoginPage extends StatelessWidget {
                     controller: loginController,
                     style: theme.textTheme.bodyLarge,
                     decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.person_outline, color: theme.colorScheme.primary),
+                      prefixIcon: Icon(Icons.person_outline,
+                          color: theme.colorScheme.primary),
                       labelText: "Username",
                       hintText: "Enter your username",
                       filled: true,
@@ -73,7 +67,8 @@ class LoginPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 18, horizontal: 16),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -92,7 +87,8 @@ class LoginPage extends StatelessWidget {
                     obscureText: true,
                     style: theme.textTheme.bodyLarge,
                     decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.lock_outline, color: theme.colorScheme.primary),
+                      prefixIcon: Icon(Icons.lock_outline,
+                          color: theme.colorScheme.primary),
                       labelText: "Password",
                       hintText: "Enter your password",
                       filled: true,
@@ -101,8 +97,10 @@ class LoginPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 18, horizontal: 16),
-                      suffixIcon: Icon(Icons.visibility_outlined, color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                      suffixIcon: Icon(Icons.visibility_outlined,
+                          color: theme.colorScheme.onSurface.withOpacity(0.5)),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -138,17 +136,6 @@ class LoginPage extends StatelessWidget {
                     child: Text(
                       "Login",
                       style: TextStyle(color: Colors.white, letterSpacing: 1.2),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16),
-                TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    "Forgot password?",
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

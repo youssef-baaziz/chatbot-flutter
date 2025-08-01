@@ -14,7 +14,7 @@ class MyCustomDrawer extends StatelessWidget {
           MyDrawerItem(
             title: "Home",
             itemIcon: Icon(Icons.home),
-            route: "/",
+            route: "/home",
           ),
           Divider(
             height: 1,
@@ -31,16 +31,22 @@ class MyCustomDrawer extends StatelessWidget {
           ),
           MyDrawerItem(
             title: "Chat",
-            itemIcon: Icon(Icons.chat),
+            itemIcon: Icon(Icons.chat_bubble_outline),
             route: "/chat",
           ),
           Divider(
             height: 1,
             color: Theme.of(context).primaryColor,
           ),
+          Spacer(),
+          Divider(
+            height: 1,
+            color: Theme.of(context).primaryColor,
+          ),
           MyDrawerItem(
             title: "Logout",
-            itemIcon: Icon(Icons.login),
+            itemIcon: Icon(Icons.login,
+                color: const Color.fromARGB(218, 209, 130, 1)),
             route: "/login",
           ),
         ],

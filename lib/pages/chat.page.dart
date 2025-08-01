@@ -10,149 +10,265 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  List<Map<String, String>> messages = [
-    {"message": "Hello !!", "type": "user"},
-    {"message": "How can I help you?", "type": "assistant"},
+  final List<Map<String, String>> messages = [
+    {
+      "message":
+          "👋 Hi there! I'm your AI assistant. How can I help you today?",
+      "type": "assistant"
+    },
   ];
 
-  TextEditingController queryController = TextEditingController();
-  ScrollController scroller = ScrollController();
+  final TextEditingController queryController = TextEditingController();
+  final ScrollController scroller = ScrollController();
+  bool isLoading = false;
+
+  Future<void> sendMessage() async {
+    final String query = queryController.text.trim();
+    if (query.isEmpty) return;
+
+    setState(() {
+      messages.add({"message": query, "type": "user"});
+      isLoading = true;
+    });
+    queryController.clear();
+
+    // Scroll to bottom after user message
+    await Future.delayed(Duration(milliseconds: 100));
+    scroller.animateTo(
+      scroller.position.maxScrollExtent + 100,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+
+    try {
+      // OpenAI endpoint (replace with your actual API key)
+      final openAiUrl = Uri.https("api.openai.com", "/v1/chat/completions");
+      final headers = {
+        "Content-Type": "application/json",
+        "Authorization":
+            "Bearer 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"
+      };
+      final prompt = {
+        "model": "gpt-4.1",
+        "messages": [
+          {"role": "user", "content": query}
+        ],
+        "temperature": 0.6,
+      };
+
+      final response = await http.post(
+        openAiUrl,
+        headers: headers,
+        body: json.encode(prompt),
+      );
+
+      if (response.statusCode == 200) {
+        final llmResponse = json.decode(response.body);
+        final String responseContent =
+            llmResponse['choices'][0]['message']['content'] ?? "No response.";
+        setState(() {
+          messages.add({"message": responseContent, "type": "assistant"});
+        });
+      } else {
+        setState(() {
+          messages.add({
+            "message":
+                "😔 Sorry, I couldn't get a response from the AI. Please try again.",
+            "type": "assistant"
+          });
+        });
+      }
+    } catch (err) {
+      setState(() {
+        messages.add({
+          "message":
+              "⚠️ Oops! Something went wrong. Please check your connection.",
+          "type": "assistant"
+        });
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+      await Future.delayed(Duration(milliseconds: 100));
+      if (scroller.hasClients) {
+        scroller.animateTo(
+          scroller.position.maxScrollExtent + 100,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    }
+  }
+
+  Widget _buildMessageBubble(Map<String, String> message, bool isUser) {
+    final theme = Theme.of(context);
+    return Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+        padding: EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+        constraints:
+            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+        decoration: BoxDecoration(
+          color: isUser
+              ? theme.colorScheme.primary
+              : theme.colorScheme.surfaceVariant,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(18),
+            topRight: Radius.circular(18),
+            bottomLeft: Radius.circular(isUser ? 18 : 0),
+            bottomRight: Radius.circular(isUser ? 0 : 18),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Text(
+          message['message'] ?? "",
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: isUser
+                ? Colors.white
+                : theme.colorScheme.onSurface.withOpacity(0.9),
+            fontSize: 17,
+            height: 1.4,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChatList() {
+    return ListView.builder(
+      controller: scroller,
+      itemCount: messages.length + (isLoading ? 1 : 0),
+      padding: EdgeInsets.only(top: 16, bottom: 16),
+      itemBuilder: (context, index) {
+        if (index == messages.length && isLoading) {
+          // Loading bubble
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  SizedBox(width: 12),
+                  Text(
+                    "Thinking...",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        final message = messages[index];
+        final isUser = message['type'] == 'user';
+        return _buildMessageBubble(message, isUser);
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Chat AI",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Theme.of(context).primaryColor,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              controller: scroller,
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                bool isUser = messages[index]['type'] == 'user';
-                return Column(
-                  children: [
-                    ListTile(
-                      trailing: isUser ? Icon(Icons.person_2_rounded) : null,
-                      leading:
-                          isUser ? null : Icon(Icons.support_agent_outlined),
-                      title: Row(
-                        children: [
-                          SizedBox(
-                            width: isUser ? 100 : 0,
-                          ),
-                          Expanded(
-                            child: Container(
-                              child: Text(
-                                messages[index]['message']!,
-                                style: TextStyle(
-                                    fontSize: 22,
-                                    color:
-                                        isUser ? Colors.white : Colors.black),
-                                // style: Theme.of(context).textTheme.bodyLarge,
-                              ),
-                              color: isUser ? Colors.teal : Colors.black12,
-                              padding: EdgeInsets.all(10),
-                            ),
-                          ),
-                          SizedBox(
-                            width: isUser ? 0 : 100,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Divider(
-                      height: 1,
-                    )
-                  ],
-                );
-              },
+        title: Row(
+          children: [
+            Icon(Icons.chat_bubble_outline, color: Colors.white),
+            SizedBox(width: 10),
+            Text(
+              "AI Chatbot",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.1,
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: queryController,
-                    decoration: InputDecoration(
-                      hintText: "Type something...",
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          width: 1,
-                          color: Theme.of(context).primaryColor,
+          ],
+        ),
+        backgroundColor: theme.primaryColor,
+        elevation: 2,
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(child: _buildChatList()),
+            Divider(height: 1, thickness: 1),
+            Container(
+              color: theme.colorScheme.surface,
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: queryController,
+                      enabled: !isLoading,
+                      textInputAction: TextInputAction.send,
+                      onFieldSubmitted: (_) => sendMessage(),
+                      style: theme.textTheme.bodyLarge,
+                      decoration: InputDecoration(
+                        hintText: "Type your message...",
+                        filled: true,
+                        fillColor: theme.colorScheme.surfaceVariant,
+                        contentPadding:
+                            EdgeInsets.symmetric(vertical: 16, horizontal: 18),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
                         ),
-                        borderRadius: BorderRadius.circular(18),
+                        suffixIcon:
+                            queryController.text.isNotEmpty && !isLoading
+                                ? IconButton(
+                                    icon: Icon(Icons.clear),
+                                    onPressed: () => queryController.clear(),
+                                  )
+                                : null,
                       ),
                     ),
                   ),
-                ),
-                IconButton(
-                  onPressed: () async {
-                    String queryy = queryController.text;
-                    queryController.text = "";
-                    // chatgpt
-                    // var openAiUrl =
-                    //     Uri.https("api.openai.com", "/v1/chat/completions");
-                    // Map<String, String> headers = {
-                    //   "Content-Type": "application/json",
-                    //   "Authorization": ""
-                    // };
-                    // var prompt = {
-                    //   "model": "gpt-3.5-turbo",
-                    //   "messages": [
-                    //     {"role": "user", "content": queryy}
-                    //   ],
-                    //   "temperature": 0.7
-                    // };
-
-                    //mistral Ai
-                    var openAiUrl =
-                        Uri.https("api.mistral.ai", "/v1/chat/completions");
-                    Map<String, String> headers = {
-                      "Content-Type": "application/json",
-                      "Authorization": "Bearer your-secret-api-key"
-                    };
-                    var prompt = {
-                      "model": "mistral-large-latest",
-                      "messages": [
-                        {"role": "user", "content": queryy}
-                      ],
-                      "temperature": 0.6,
-                    };
-                    http
-                        .post(openAiUrl,
-                            headers: headers, body: json.encode(prompt))
-                        .then((response) {
-                      var responseBody = response.body;
-                      var llmResponse = json.decode(responseBody);
-                      String responseContent =
-                          llmResponse['choices'][0]['message']['content'];
-                      setState(() {
-                        messages.add({"message": queryy, "type": "user"});
-                        messages.add(
-                            {"message": responseContent, "type": "assistant"});
-                        scroller
-                            .jumpTo(scroller.position.maxScrollExtent + 300);
-                      });
-                    }, onError: (err) {
-                      print("******* ERROR CHAT AI *******");
-                      print(err);
-                    });
-                  },
-                  icon: Icon(Icons.send),
-                ),
-              ],
+                  SizedBox(width: 8),
+                  AnimatedSwitcher(
+                    duration: Duration(milliseconds: 200),
+                    child: isLoading
+                        ? Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: SizedBox(
+                              width: 28,
+                              height: 28,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          )
+                        : IconButton(
+                            key: ValueKey('send'),
+                            icon: Icon(Icons.send_rounded,
+                                color: theme.colorScheme.primary),
+                            onPressed: sendMessage,
+                            tooltip: "Send",
+                          ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
