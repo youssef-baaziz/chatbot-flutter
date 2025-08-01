@@ -45,8 +45,7 @@ class _ChatPageState extends State<ChatPage> {
       final openAiUrl = Uri.https("api.openai.com", "/v1/chat/completions");
       final headers = {
         "Content-Type": "application/json",
-        "Authorization":
-            "Bearer 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"
+        "Authorization": "Bearer key-api-openai"
       };
       final prompt = {
         "model": "gpt-4.1",
